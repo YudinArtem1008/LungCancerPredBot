@@ -21,8 +21,10 @@ async def start_handler(msg: Message):
 @router.message(F.photo)
 async def predict_cancer(msg: Message):
     i = len([name for name in os.listdir('./photos') if os.path.isfile(name)])
-    await msg.photo[-1].download(f'./photos/photo{i + 1}.jpg')
+    await msg.bot.download(file=msg.photo[-1].file_id, destination=f'./photos/photo{i + 1}.jpg')
 
-    img = torch.tensor(np.asarray(Image.open(f'./photos/photo{i + 1}.jpg').resize((256, 256)))).permute(2, 0, 1)
+    img = torch.tensor(np.asarray(Image.open(f'./photos/photo{i + 1}.jpg').resize((256, 256))), dtype=torch.float32).permute(2, 0, 1)
+    img /= 255
+    # Так, теперь хуйня с предсказаниями. Я не знаю, как это фиксить. Походу, надо обучать нейронку заново
     pred = model(img)
     await msg.answer(pred)

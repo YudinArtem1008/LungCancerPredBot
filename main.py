@@ -7,6 +7,8 @@ from aiogram.client.default import DefaultBotProperties
 from aiogram.enums.parse_mode import ParseMode
 from aiogram.fsm.storage.memory import MemoryStorage
 
+from model import Model, ResidualBlock, LinearBlock
+
 from handlers import router
 
 with open('gitignore/config.json', 'r') as file:
