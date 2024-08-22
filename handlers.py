@@ -1,4 +1,4 @@
-from aiogram import F, Router, types
+from aiogram import F, Router
 from aiogram.filters import Command
 from aiogram.types import Message
 from utils import model
@@ -26,5 +26,19 @@ async def predict_cancer(msg: Message):
     img = torch.tensor(np.asarray(Image.open(f'./photos/photo{i + 1}.jpg').resize((256, 256))), dtype=torch.float32).permute(2, 0, 1)
     img /= 255
     # Так, теперь хуйня с предсказаниями. Я не знаю, как это фиксить. Походу, надо обучать нейронку заново
-    pred = model(img)
-    await msg.answer(pred)
+    # upd: Походу, я знаю, как решить эту проблему без обучения нейронки заново
+    img = torch.stack((img, img, img, img, img, img, img, img,
+                       img, img, img, img, img, img, img, img,
+                       img, img, img, img, img, img, img, img,
+                       img, img, img, img, img, img, img, img))
+    pred_list = list(model(img).max(1).indices.cpu().detach())
+    frequency = [0, 0, 0]
+    for el in pred_list:
+        frequency[el] += 1
+    pred = frequency.index(max(frequency))
+    if pred == 0:
+        await msg.answer(text.bengin_cancer)
+    elif pred == 1:
+        await msg.answer(text.malignant_cancer)
+    else:
+        await msg.answer(text.no_cancer)
